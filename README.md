@@ -4,7 +4,9 @@ A logistics operations platform for Waypoint Group. It connects ordering, planni
 
 Planning is deterministic Java code. It respects the operating rules and explains every deferral. The AI assistant reads system state through role-scoped tools. It never decides access and never mutates data.
 
-> **Status.** The backend, the AI service and the React frontend are built. The frontend covers all four roles and the admin area. The walkthrough below uses the REST API so each call is visible; the same steps can be run in the UI (see the note in the walkthrough).
+> **Status.** The backend, the AI service and the React frontend are built, and the full stack runs with `docker compose up`. The frontend covers all four roles and the admin area. The walkthrough below uses the REST API so each call is visible; the same steps can be run in the UI.
+>
+> **Live demo.** The public link is served from a laptop through a free Cloudflare quick tunnel, because the project has no budget for paid hosting. See [Hosting for the submission](#hosting-for-the-submission) for what that means for availability.
 
 ---
 
@@ -514,6 +516,29 @@ docker compose down           # stop, keep data
 docker compose down -v        # stop and delete the database volume (fresh seed on next start)
 ```
 
+### Hosting for the submission
+
+The project has no budget for paid hosting, so the live demo runs on the team's laptop and is exposed through a free [Cloudflare quick tunnel](https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/do-not-use-quick-tunnels-in-production/). Nothing in the stack is hosting-specific: the frontend container is the single public entry point, and its nginx forwards `/api` to the backend and `/chat` to the AI service.
+
+To reproduce the live link:
+
+```bash
+docker compose up -d                                                  # 1. start the stack
+cloudflared tunnel --url http://localhost:5173                        # 2. expose the frontend
+```
+
+Then set the tunnel's address in `CORS_ALLOWED_ORIGINS` in `.env` (the backend rejects requests from origins it doesn't list) and restart the backend:
+
+```bash
+CORS_ALLOWED_ORIGINS=http://localhost:5173,https://<your-tunnel>.trycloudflare.com
+docker compose up -d backend
+```
+
+What this means for availability:
+- The link works only while the laptop is awake, connected, and running Docker and the tunnel.
+- The `trycloudflare.com` address changes every time the tunnel restarts, so the CORS line must be updated each time.
+- A permanent deployment would move the same `docker-compose.yml` onto a cloud VM. That was not done for this submission because it needs a paid or card-verified account.
+
 ### Without Docker
 
 ```bash
@@ -542,6 +567,17 @@ All accounts use the password `password123`.
 | `driver1` | DRIVER | Peliyagoda depot | Trip start, stops, deliveries, offline sync |
 | `store1` | STORE_MANAGER | Outlet OUT001 (Fresh, Colombo) | Orders, confirmation, receipt |
 | `admin1` | ADMIN | All | Users, fleet, audit log, demo reset, health |
+
+**Submission logins — one per role:**
+
+| Role | Username | Password |
+|---|---|---|
+| Dispatcher | `dispatcher1` | `password123` |
+| Loader | `loader1` | `password123` |
+| Driver | `driver1` | `password123` |
+| Store Manager | `store1` | `password123` |
+
+`admin1` (password `password123`) is an extra account for the administration screens.
 
 The seed also loads 2 depots, 120 outlets, 60 vehicles, 12 district travel rows, 9 service allowances and 910 calendar days from `data/general_data/`.
 

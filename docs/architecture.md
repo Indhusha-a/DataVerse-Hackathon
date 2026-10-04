@@ -51,3 +51,5 @@ The booklet's framing is "one system, four faces," not four separate apps. A mod
 ## Deployment
 
 `docker-compose.yml` at the repo root brings up all four services plus Postgres with one command (`docker compose up --build`), seeded with the competition dataset and the five demo accounts on first boot. See [Setup](../README.md#setup) in the project README for the exact steps, including running each service outside Docker for development.
+
+The public demo link for the submission is served from the team's laptop through a free Cloudflare quick tunnel, which forwards to the frontend container's port. The frontend's nginx then proxies `/api` and `/chat` internally, so the tunnel exposes the whole stack through one address. See [Hosting for the submission](../README.md#hosting-for-the-submission) for the availability limits.

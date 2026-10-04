@@ -146,7 +146,9 @@ trip_minutes = depot_to_district_freeflow_min                 (once, outbound)
 
 **Smart en-route insertion:** if an outlet lies on the path between two stops a trip has already committed to, and adding it doesn't break any hard constraint, the engine inserts it and records the detour in minutes as a route note on that stop — visible on the dispatcher's planning screen and the driver's stop card.
 
-**Deferral:** when no vehicle/trip combination is feasible, the order is marked `DEFERRED` with a structured reason list (e.g. `No compatible refrigerated vehicle`, `Would exceed the Fresh time budget`). The AI assistant can read and explain these reasons; it never invents or alters them.
+**Deferral:** when no vehicle/trip combination is feasible, the order is marked `DEFERRED` with a structured reason list (e.g. `No compatible refrigerated vehicle`, `Would exceed the Fresh time budget`). Each planning-sourced deferral row records the `planId` of the run that produced it, and a plan's response lists only its own deferrals — so an order that is still `DEFERRED` from an earlier run does not reappear in a later plan's view. A manual dispatcher deferral has no `planId`. The AI assistant can read and explain these reasons; it never invents or alters them.
+
+The dispatcher can also choose which confirmed orders a draft considers: `POST /api/planning/generate` accepts an optional `{orderIds}` body, and when it is present only those orders are planned. Without a body, every eligible order is planned.
 
 A generated plan is a `DRAFT`. It becomes the day's live plan only once the dispatcher approves it (`POST /api/planning/{id}/approve`), which is also the moment `LoadingTask` rows are created and orders move to `ALLOCATED`. `POST /api/planning/{id}/replan` discards a draft and regenerates from the currently confirmed orders — useful if more orders were confirmed after the first draft.
 

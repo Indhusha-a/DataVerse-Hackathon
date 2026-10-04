@@ -9,8 +9,6 @@ services:
       POSTGRES_USER: ${DB_USER:-waypoint}
       POSTGRES_PASSWORD: ${DB_PASSWORD:-waypoint}
       POSTGRES_DB: ${DB_NAME:-waypoint}
-    ports:
-      - "5432:5432"
     volumes:
       - waypoint_pgdata:/var/lib/postgresql/data
     healthcheck:

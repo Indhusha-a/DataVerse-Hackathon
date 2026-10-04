@@ -1,0 +1,44 @@
+# Central configuration for the backend. Single profile — every value has a sane local default and can be overridden by environment
+# variables (see .env.example at the repo root), which is what docker-compose
+# injects when the whole stack runs in containers.
+
+server:
+  port: ${SERVER_PORT:8080}
+
+spring:
+  application:
+    name: waypoint-backend
+  datasource:
+    # Default port is 5433, not Postgres's usual 5432 — a native Postgres
+    # install is already bound to 5432 on this machine. docker-compose.yml
+    # (added later) overrides DB_PORT to 5432 for the containerized setup,
+    # where this doesn't apply (containers reach Postgres by service name).
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5433}/${DB_NAME:waypoint}
+    username: ${DB_USER:waypoint}
+    password: ${DB_PASSWORD:waypoint}
+  jpa:
+    hibernate:
+      # 'update' evolves the schema from the entity classes. It does not rewrite
+      # existing check constraints when an enum changes, so drop the stale
+      # constraint or recreate the database after enum changes.
+      ddl-auto: update
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: true
+    open-in-view: false
+
+app:
+  jwt:
+    # In production this MUST come from an environment variable / secret
+    # store, never be committed. The default below is only here so the app
+    # boots out-of-the-box for local dev; override it via JWT_SECRET.
+    secret: ${JWT_SECRET:change-this-dev-only-secret-key-please-replace-me-32chars+}
+    expiration-ms: ${JWT_EXPIRATION_MS:86400000} # 24h
+  seed:
+    # Path to the competition dataset, relative to the working directory the
+    # backend process is started from (backend/). The seed loader
+    # reads outlets.csv and vehicles.csv from here on first boot.
+    data-dir: ${SEED_DATA_DIR:../data/general_data}
+  cors:
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:5173,http://localhost:3000}

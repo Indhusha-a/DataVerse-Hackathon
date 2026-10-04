@@ -1,0 +1,29 @@
+# Secrets — never commit real values, only .env.example
+.env
+.env.local
+.env.*.local
+!.env.example
+
+# Datathon-only portions of the dataset — not read by this submission's
+# backend (SEED_DATA_DIR only points at data/general_data, which stays
+# tracked so `docker compose up` can seed on a fresh clone).
+data/training_data/
+data/test_data/
+
+*.tmp
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editors
+.idea/
+.vscode/*
+!.vscode/extensions.json
+*.swp
+
+# Logs
+*.log
+
+# Docker
+docker-compose.override.yml

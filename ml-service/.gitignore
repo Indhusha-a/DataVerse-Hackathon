@@ -1,0 +1,16 @@
+# Secrets — this file holds real LLM provider keys, never commit it
+.env
+
+venv/
+__pycache__/
+*.pyc
+*.pyo
+
+# Editors
+.idea/
+.vscode/*
+!.vscode/extensions.json
+
+# OS
+.DS_Store
+Thumbs.db
